@@ -87,12 +87,26 @@ void loop1() {
   // though I suppose they could return an error code or a retry counter...
 
   // was the command to recalibrate the pulses lengths? then do that
-  // TODO if( command == CMD_RECALIBRATE) 
+  if( command == CMD_RECALIBRATE) {
+    status = recalibrate_pulse_timings();
+  } else if( command == CMD_IDLE) {
+    // just do nothing!
+    status = STATUS_OK; // can't do nothing any way but right
+  } else {
+    // unrecognized command. that's an internal error
+    status = STATUS_ERR_UNRECOGNIZED_COMMAND;
+  }
   // was the command to ... do something else? well then do whatever that thing is
 
   // we should be done doing whatever we were going to do, so check for a new command from the first core
   // TODO get the latest command from the first core
-
+  if( status == STATUS_RETRY) {
+    // don't get a command, actually; just leave it at whatever it was
+  } else if( status == STATUS_ERR_UNRECOGNIZED_COMMAND) {
+    // TODO how do we shut this whole thing down? tell the first core there's a problem and shutdown all the hardware we control
+  } else {
+    command = get_command();
+  }
   
   
 
