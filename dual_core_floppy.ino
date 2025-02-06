@@ -62,6 +62,7 @@ void loop() {
 
 void setup1() {
   // second core setup
+  core2_status = STATUS_SETUP;
 
   // this core will handle data streams to and from the floppy, so initialize those pins here
   // TODO initialize the pins to the floppy
@@ -69,11 +70,11 @@ void setup1() {
   // motor control pin
   // read data pin
 
-  // turn on the motor and check to see if we get an index pulse
-  // TODO index pulse motor check
+  // TODO when do we turn on the motor? and when do we turn it of??
 
   // signal that core 2 is ready
   core2_ready = true;
+  core2_status = STATUS_IDLE;
 }
 
 void loop1() {
@@ -83,12 +84,14 @@ void loop1() {
   // wait for the index pulse
 
   // now execute whatever command we had from the last run
-  // the command write whatever data the produce to whever it needs to go; they don't return it for this loop to write somewhere
-  // though I suppose they could return an error code or a retry counter...
+  // the commands write whatever data they produce to where ever it needs to go; they don't return it for this loop to write somewhere
+  // they do return an error code or a retry counter...
 
-  // was the command to recalibrate the pulses lengths? then do that
-  if( command == CMD_RECALIBRATE) {
-    status = recalibrate_pulse_timings();
+  if( command == CMD_INDEX_CHECK) {
+    status = measure_index_pulse(); // see if we get appropriate index pulses
+  }
+  else if( command == CMD_RECALIBRATE) {
+    status = recalibrate_pulse_timings(); // measure a bunch of pulses and set the thresholds for pulse types
   } else if( command == CMD_IDLE) {
     // just do nothing!
     status = STATUS_OK; // can't do nothing any way but right
@@ -96,14 +99,14 @@ void loop1() {
     // unrecognized command. that's an internal error
     status = STATUS_ERR_UNRECOGNIZED_COMMAND;
   }
-  // was the command to ... do something else? well then do whatever that thing is
+  // what other commands? reading a sector; reading track marker; writing a sector; writing a track marker
 
   // we should be done doing whatever we were going to do, so check for a new command from the first core
   // TODO get the latest command from the first core
   if( status == STATUS_RETRY) {
     // don't get a command, actually; just leave it at whatever it was
   } else if( status == STATUS_ERR_UNRECOGNIZED_COMMAND) {
-    // TODO how do we shut this whole thing down? tell the first core there's a problem and shutdown all the hardware we control
+    // TODO how do we shut this whole thing down? tell the first core there's a problem and shutdown all the hardware we control?
   } else {
     command = get_command();
   }
