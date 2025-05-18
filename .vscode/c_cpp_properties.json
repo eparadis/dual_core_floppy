@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "name": "Mac",
+      "includePath": [
+        "${workspaceFolder}/**",
+        // "/Applications/Arduino IDE 2.x.app/Contents/Java/hardware/arduino/avr/cores/arduino",
+        "${HOME}/Documents/Arduino/libraries/**",
+        "${HOME}/Library/Arduino15/packages/**",
+        "${HOME}/Library/Arduino15/packages/rp2040/*",
+        "${HOME}/Library/Arduino15/packages/rp2040/hardware/rp2040/4.5.1/cores/rp2040/*"
+      ],
+      "defines": [],
+      "compilerPath": "/usr/bin/clang",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "macos-clang-arm64"
+    }
+  ],
+  "version": 4
+}

@@ -1,3 +1,6 @@
+#include <Arduino.h>
+
+
 // ed paradis 2025
 // hardware details
 // board: Raspberry Pi Pico 2
@@ -20,6 +23,23 @@
 //   https://arduino-pico.readthedocs.io/en/latest/multicore.html
 
 volatile bool core2_ready = false;
+
+// Status codes for core2_status
+#define STATUS_SETUP 0
+#define STATUS_IDLE 1
+#define STATUS_OK 2
+#define STATUS_ERR_UNRECOGNIZED_COMMAND 3
+#define STATUS_RETRY 4
+#define STATUS_UNDEFINED 5
+volatile int core2_status = STATUS_IDLE;
+
+// Commands
+#define CMD_IDLE 0
+#define CMD_INDEX_CHECK 1
+#define CMD_RECALIBRATE 2
+#define CMD_READ 3
+#define CMD_WRITE 4
+volatile int command = CMD_IDLE;
 
 void setup() {
   // first core setup
@@ -81,6 +101,8 @@ void loop1() {
   // second core loop
   // it is synchronized to the index pulse
 
+  int status = STATUS_UNDEFINED;
+
   // wait for the index pulse
 
   // now execute whatever command we had from the last run
@@ -110,30 +132,47 @@ void loop1() {
   } else {
     command = get_command();
   }
-  
-  
 
+}
 
+int get_command() {
+  // TODO: get the next command from the first core
+  // For now, just return the command to do nothing specific
+  return CMD_IDLE;
+}
+
+int measure_index_pulse() {
+  // TODO: Replace with actual index pulse measurement logic
+  // For now, just return STATUS_OK to avoid compile errors
+  return STATUS_OK;
+}
+
+int recalibrate_pulse_timings() {
+  // TODO: Replace with actual index pulse calibration logic
+  // For now, just return STATUS_OK to avoid compile errors
+  return STATUS_OK;
 }
 
 // naive software impl to read a pulse
 // REF: floppy.cafe/mfm.html
-int read_symbol() {
-  int count = 0;
-  // count while the read pin is low
-  while( digitalReadFast(READ_PIN) == LOW) {
-    count += 1;
-  }
-  // and count while the read pin is high
-  while( digitalReadFast(READ_PIN) == HIGH) {
-    count += 1;
-  }
+// #define SHORT_PERIOD 100
+// #define MID_PERIOD 200
+// int read_symbol() {
+//   int count = 0;
+//   // count while the read pin is low
+//   while( digitalReadFast(READ_PIN) == LOW) {
+//     count += 1;
+//   }
+//   // and count while the read pin is high
+//   while( digitalReadFast(READ_PIN) == HIGH) {
+//     count += 1;
+//   }
 
-  if( counter < SHORT_PERIOD) {
-    return 0;
-  } else if( counter < MID_PERIOD) {
-    return 1;
-  } else {
-    return 3; // "long period"
-  }
-}
+//   if( count < SHORT_PERIOD) {
+//     return 0;
+//   } else if( count < MID_PERIOD) {
+//     return 1;
+//   } else {
+//     return 3; // "long period"
+//   }
+// }
