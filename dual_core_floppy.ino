@@ -22,8 +22,6 @@
 //   multicore processing with the Pico Arduino core:
 //   https://arduino-pico.readthedocs.io/en/latest/multicore.html
 
-volatile bool core2_ready = false;
-
 // Status codes for core2_status
 #define STATUS_SETUP 0
 #define STATUS_IDLE 1
@@ -62,22 +60,44 @@ void setup() {
 
   // wait for core 2 to be ready
   int count = 0;
-  while(!core2_ready) {
+  while(!core2_status != STATUS_IDLE) {
     count += 1;
-    Serial.printf("Waiting for core2... %d\n", count);
+    Serial.printf("Waiting for core2 to be idle. (core2_status=%d)\n", core2_status);
     delay(500);
     // TODO after some max count, exit to a failsafe state
   }
+
+  Serial.printf("Core 2 status: %d\n", core2_status);
 }
 
 void loop() {
-  // first core loop
+  // first core loop.
+  // it blocks for user input
 
-  // print our status
-  Serial.printf("Status: (none yet...)\n");
+  // get a command
+  Serial.println("Command? ");
+  while( !Serial.available()) {
+    // wait for user input
+    delay(100);
+  }
+  String command_str = Serial.readStringUntil('\n');
+  if(command_str == "icheck") {
+    command = CMD_INDEX_CHECK;
+  } else if( command_str == "recal") {
+    command = CMD_RECALIBRATE;
+  } else if( command_str == "read") {
+    command = CMD_READ;
+  } else if( command_str == "write") {
+    command = CMD_WRITE;
+  } else if( command_str == "idle") {
+    command = CMD_IDLE;
+  } else {
+    Serial.println("available commands: icheck, recal, read, write, idle");
+    return;
+  }
 
-  // throttle this loop
-  delay(500); // TODO it would be better to look at millis() or use a timer to keep this loop more regular
+  // report second core status
+  Serial.printf("Core 2 status: %d\n", core2_status);
 }
 
 void setup1() {
